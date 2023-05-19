@@ -38,7 +38,7 @@ async function run() {
 
     app.get('/myToys/:email',async(req,res)=>{
         const email = req.params.email;
-        const result = await jobCollection.find({email: email}).toArray();
+        const result = await toysCollection.find({sellerEmail: email}).toArray();
         res.send(result)
     })
 
@@ -46,6 +46,13 @@ async function run() {
 
     app.get('/allToys' , async(req,res)=>{
       const result = await toysCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.delete('/allToys/:id', async(req,res)=>{
+      const id = req.params.id ;
+      const query = {_id: new Object(id)}
+      const result = await toysCollection.deleteOne(query);
       res.send(result)
     })
     // Send a ping to confirm a successful connection
