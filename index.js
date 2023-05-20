@@ -39,6 +39,7 @@ async function run() {
       const email = req.params.email;
       const result = await toysCollection
         .find({ sellerEmail: email })
+        .sort({price:1})
         .toArray();
       res.send(result);
     });
@@ -56,6 +57,18 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/searchToy/:text', async(req,res)=>{
+      const searchText = req.params.text;
+      const result = await toysCollection
+      .find({
+          $or:[
+              {toyName: {$regex : searchText , $options: 'i'}}
+          ],
+      })
+      .toArray();
+
+      res.send(result)
+  })
     
     app.get("/allToys/:text", async (req, res) => {
       const text = req.params.text;
