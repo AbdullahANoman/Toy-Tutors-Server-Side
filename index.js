@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -35,26 +35,52 @@ async function run() {
       console.log(result);
     });
 
+    app.get("/myToys/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await toysCollection
+        .find({ sellerEmail: email })
+        .toArray();
+      res.send(result);
+    });
 
-    app.get('/myToys/:email',async(req,res)=>{
-        const email = req.params.email;
-        const result = await toysCollection.find({sellerEmail: email}).toArray();
-        res.send(result)
-    })
-
-
-
-    app.get('/allToys' , async(req,res)=>{
+    app.get("/allToys", async (req, res) => {
       const result = await toysCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get('/details/:id', async(req,res)=>{
+      const id = req.params.id;
+      console.log(id)
+      const query = {_id: new ObjectId(id)};
+      const result = await toysCollection.findOne(query)
       res.send(result)
     })
 
-    app.delete('/allToys/:id', async(req,res)=>{
-      const id = req.params.id ;
-      const query = {_id: new Object(id)}
+    
+    app.get("/allToys/:text", async (req, res) => {
+      const text = req.params.text;
+      // console.log(text)
+      if (text == "math" || text == "language" || text == "science") {
+        const result = await toysCollection.find({ category: text }).toArray();
+        res.send(result);
+      } 
+      else {
+        const result = await toysCollection.find({}).toArray();
+        res.send(result);
+      }
+    });
+
+    // app.get('/myToys/:id', async(req,res)=>{
+
+    // })
+
+    
+    app.delete("/allToys/:id", async(req,res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const result = await toysCollection.deleteOne(query);
-      res.send(result)
-    })
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
