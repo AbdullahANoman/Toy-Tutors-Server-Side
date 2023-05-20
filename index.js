@@ -39,7 +39,7 @@ async function run() {
       const email = req.params.email;
       const result = await toysCollection
         .find({ sellerEmail: email })
-        .sort({price:1})
+        .sort({ price: 1 })
         .toArray();
       res.send(result);
     });
@@ -49,35 +49,32 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/details/:id', async(req,res)=>{
+    app.get("/details/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id)
-      const query = {_id: new ObjectId(id)};
-      const result = await toysCollection.findOne(query)
-      res.send(result)
-    })
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await toysCollection.findOne(query);
+      res.send(result);
+    });
 
-    app.get('/searchToy/:text', async(req,res)=>{
+    app.get("/searchToy/:text", async (req, res) => {
       const searchText = req.params.text;
       const result = await toysCollection
-      .find({
-          $or:[
-              {toyName: {$regex : searchText , $options: 'i'}}
-          ],
-      })
-      .toArray();
+        .find({
+          $or: [{ toyName: { $regex: searchText, $options: "i" } }],
+        })
+        .toArray();
 
-      res.send(result)
-  })
-    
+      res.send(result);
+    });
+
     app.get("/allToys/:text", async (req, res) => {
       const text = req.params.text;
       // console.log(text)
       if (text == "math" || text == "language" || text == "science") {
         const result = await toysCollection.find({ category: text }).toArray();
         res.send(result);
-      } 
-      else {
+      } else {
         const result = await toysCollection.find({}).toArray();
         res.send(result);
       }
@@ -87,13 +84,27 @@ async function run() {
 
     // })
 
-    
-    app.delete("/allToys/:id", async(req,res) => {
+    app.delete("/allToys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await toysCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.put('/updateToy/:id',async(req,res)=>{
+      const id = req.params.id ;
+      const body = req.body;
+        const filter = {_id: new ObjectId(id)};
+        const updateDoc = {
+            $set :{
+                price : body.price,
+                quantity: body.quantity,
+                description: body.description
+            }
+        }
+        const result = await toysCollection.updateOne(filter,updateDoc);
+        res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
